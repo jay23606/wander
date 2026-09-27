@@ -4,15 +4,23 @@ body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 20% 0
 header { text-align: center; max-width: 720px; }
 h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); margin: 6px 0 4px; letter-spacing: -0.02em; }
 .sub { color: #9aa6bd; font-size: 0.95rem; margin: 0 0 16px; }
-main { width: 100%; max-width: 900px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.view { position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 20px 60px #0007; touch-action: none; }
-#gallery, #portal { display: block; width: 100%; height: 100%; cursor: grab; }
-.hint { position: absolute; left: 12px; top: 10px; font-size: 0.78rem; color: #cfe0f6; background: #05070ac0; padding: 6px 10px; border-radius: 999px; pointer-events: none; }
+main { width: 100%; max-width: 960px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.stage { position: relative; width: 100%; aspect-ratio: 16/9; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); box-shadow: 0 20px 60px #0007; touch-action: none; background: #05060a; }
+#scene { display: block; width: 100%; height: 100%; cursor: grab; }
+.hint { position: absolute; left: 12px; right: 12px; top: 10px; font-size: 0.76rem; color: #cfe0f6; background: #05070ac0; padding: 6px 10px; border-radius: 14px; pointer-events: none; }
+.count { position: absolute; right: 12px; bottom: 10px; font-size: 0.74rem; color: #8fa0bd; background: #05070ac0; padding: 6px 10px; border-radius: 999px; pointer-events: none; }
+.touch-controls { position: absolute; left: 10px; bottom: 10px; pointer-events: none; }
+.touch-pad { display: flex; align-items: center; gap: 6px; }
+.touch-col { display: flex; flex-direction: column; gap: 6px; }
+.touch-btn { pointer-events: auto; width: 50px; height: 50px; border-radius: 50%; border: 1px solid #2f5544; background: #0d1f16cc; color: #eaf5ee; font-size: 1.15rem; -webkit-user-select: none; user-select: none; touch-action: none; }
+@media (hover: hover) and (pointer: fine) { .touch-controls { display: none; } }
+.prompt { position: absolute; left: 50%; bottom: 22px; translate: -50% 0; }
+.prompt button, #enter-btn { background: var(--green); color: #04140b; border: 0; font-weight: 800; padding: 0.7rem 1.1rem; border-radius: 12px; cursor: pointer; box-shadow: 0 8px 24px #0007; }
 .credit { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; padding: 14px; background: linear-gradient(0deg, #05070ae0, transparent); font-size: 0.82rem; }
 .credit span { color: #9aa6bd; }
 .credit a { color: var(--green); }
 .opens { align-self: center; font-weight: 700; color: #ffe17c !important; }
-#back { background: var(--green); color: #04140b; border: 0; font-weight: 800; padding: 0.6rem 1rem; border-radius: 10px; cursor: pointer; }
-.about { color: #7c869c; font-size: 0.8rem; text-align: center; max-width: 640px; margin: 4px 0 0; }
+#back-btn { background: var(--green); color: #04140b; border: 0; font-weight: 800; padding: 0.6rem 1rem; border-radius: 10px; cursor: pointer; }
+.about { color: #7c869c; font-size: 0.8rem; text-align: center; max-width: 700px; margin: 4px 0 0; }
 .about a { color: var(--green); }
 [hidden] { display: none !important; }

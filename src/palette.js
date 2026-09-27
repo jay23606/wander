@@ -64,17 +64,27 @@ export function dominantColors(pixels, count = 5) {
  return [...hueBuckets, neutral].filter(b => b.n > 0).sort((a, b) => b.n - a.n).slice(0, count).map(hex)
 }
 
-// Tries to sample the real image; resolves to null (never rejects) if it cannot be read, so the caller
-// always has fallbackPalette to reach for. `loadImage` and `createCanvas` are injectable for testing.
-export async function extractPalette(url, { loadImage = defaultLoadImage, createCanvas = defaultCreateCanvas, timeoutMs = 4000 } = {}) {
+// Samples an already-loaded image (an HTMLImageElement, or anything drawImage accepts) directly --
+// used when the caller loaded the image for another reason too (a wall texture) and there is no reason
+// to fetch it twice. Resolves to null (never throws) if the canvas cannot be read.
+export function paletteFromImage(img, { createCanvas = defaultCreateCanvas } = {}) {
  try {
-  const img = await withTimeout(loadImage(url), timeoutMs)
   const canvas = createCanvas(SWATCH, SWATCH)
   const ctx = canvas.getContext('2d')
   ctx.drawImage(img, 0, 0, SWATCH, SWATCH)
   const { data } = ctx.getImageData(0, 0, SWATCH, SWATCH)
   const colors = dominantColors(data)
   return colors.length ? colors : null
+ } catch { return null }
+}
+
+// Tries to load and sample the real image; resolves to null (never rejects) if it cannot be read, so
+// the caller always has fallbackPalette to reach for. `loadImage` and `createCanvas` are injectable for
+// testing.
+export async function extractPalette(url, { loadImage = defaultLoadImage, createCanvas = defaultCreateCanvas, timeoutMs = 4000 } = {}) {
+ try {
+  const img = await withTimeout(loadImage(url), timeoutMs)
+  return paletteFromImage(img, { createCanvas })
  } catch { return null }
 }
 
@@ -96,9 +106,11 @@ function defaultCreateCanvas(w, h) {
 }
 
 // A palette either extracted or, failing that, guessed from the piece's own words -- either way, real
-// and deterministic, never a call to a model.
-export async function paletteFor(piece, opts) {
- return (await extractPalette(piece.thumbnail, opts)) || fallbackPalette(`${piece.title}|${piece.creator}`)
+// and deterministic, never a call to a model. Pass `image` (already loaded, e.g. for a wall texture) to
+// sample it directly instead of fetching the thumbnail a second time.
+export async function paletteFor(piece, opts = {}) {
+ const real = opts.image ? paletteFromImage(opts.image, opts) : await extractPalette(piece.thumbnail, opts)
+ return real || fallbackPalette(`${piece.title}|${piece.creator}`)
 }
 
 export const pickAccent = (palette, seedText) => pick(rng(`${seedText}|accent`), palette)

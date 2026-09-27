@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { fallbackPalette, dominantColors, extractPalette, paletteFor } from '../src/palette.js'
+import { fallbackPalette, dominantColors, extractPalette, paletteFor, paletteFromImage } from '../src/palette.js'
 
 const isHex = c => /^#[0-9a-f]{6}$/.test(c)
 
@@ -75,6 +75,19 @@ test('extractPalette resolves to null (never throws) when the image cannot be lo
 
  const taintedCanvas = () => ({ getContext: () => ({ drawImage() {}, getImageData() { throw new Error('tainted canvas') } }) })
  assert.equal(await extractPalette('x', { loadImage: async () => ({}), createCanvas: taintedCanvas }), null)
+})
+
+test('paletteFromImage samples an already-loaded image directly, with no loader involved', () => {
+ const createCanvas = () => fakeCanvas(() => { const d = []; for (let i = 0; i < 64; i++) d.push(20, 200, 20, 255); return new Uint8ClampedArray(d) })
+ const colors = paletteFromImage({ width: 8, height: 8 }, { createCanvas })
+ assert.ok(colors && colors.length > 0)
+})
+
+test('paletteFor uses a pre-loaded image when given one, skipping the network entirely', async () => {
+ const piece = { id: '1', title: 'X', creator: 'Y', thumbnail: 'https://example.test/never-fetched.jpg' }
+ const createCanvas = () => fakeCanvas(() => { const d = []; for (let i = 0; i < 64; i++) d.push(200, 20, 20, 255); return new Uint8ClampedArray(d) })
+ const colors = await paletteFor(piece, { image: { width: 8, height: 8 }, createCanvas })
+ assert.ok(colors.length > 0)
 })
 
 test('paletteFor prefers a real extraction, and falls back to the piece\'s own words when that fails', async () => {
